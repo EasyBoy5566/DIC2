@@ -24,6 +24,27 @@ try:
         assert page.locator('#methodTabs button').count()==5
         assert page.locator('#tbody .row-badge').inner_text()=='推薦模型'
         assert page.locator('#summaryCard').is_visible()
+        page.select_option('#featureCount','1')
+        assert page.locator('#modelBadge').inner_text()=='自選模型'
+        assert page.locator('#predictionInputs input').count()==1
+        assert '1 個特徵' in page.locator('#bestFeatures').inner_text()
+        assert '研發支出' in page.locator('#equation').inner_text()
+        page.select_option('#featureCount','5')
+        state=page.locator('#predictionInputs select')
+        assert state.count()==1
+        state.select_option('California')
+        before=float(page.locator('#predictionValue').inner_text().replace(',',''))
+        state.select_option('Florida')
+        after=float(page.locator('#predictionValue').inner_text().replace(',',''))
+        delta=page.evaluate("selectedModel.coefficients[selectedModel.features.indexOf('State_Florida')+1]")
+        assert abs((after-before)-delta)<0.02
+        page.locator('#predictionInputs input').first.fill('')
+        assert page.locator('#predictionValue').inner_text()=='—'
+        page.locator('#predictionInputs input').first.fill('100000')
+        assert page.locator('#predictionValue').inner_text()!='—'
+        page.click('#restoreBest')
+        assert page.locator('#modelBadge').inner_text()=='交叉驗證推薦模型'
+        assert page.locator('#featureCount').input_value()=='2'
         outputs=[]
         for problem,expected in [('startup',25),('custom',15)]:
             page.select_option('#problem',problem)
@@ -41,6 +62,9 @@ try:
                 text=page.locator('#tbody').inner_text()
                 assert 'NaN' not in text and 'Infinity' not in text
             assert total==expected
+            page.select_option('#featureCount','1')
+            assert '1 個特徵' in page.locator('#bestFeatures').inner_text()
+            page.click('#restoreBest')
             outputs.append({'problem':problem,'status':page.locator('#status').inner_text(),'method':page.locator('#bestMethod').inner_text(),'rmse':page.locator('#bestRmse').inner_text()})
         page.evaluate("loadCsv('a,b\\n1,2,3\\n4,5')")
         assert page.locator('#run').is_disabled()
@@ -54,8 +78,13 @@ try:
         page.click('#run')
         page.wait_for_function("document.getElementById('status').textContent.startsWith('分析完成')")
         assert float(page.locator('#bestRmse').inner_text())<0.01
+        page.locator('#predictionInputs input').fill('10')
+        assert abs(float(page.locator('#predictionValue').inner_text())-23)<0.01
+        page.locator('#predictionInputs input').fill('100')
+        assert '外推' in page.locator('#predictionNote').inner_text()
         page.select_option('#problem','startup')
         assert page.locator('#run').is_disabled()
+        assert page.locator('#predictionCard').is_hidden()
         page.click('#loadExample')
         page.wait_for_function("!document.getElementById('run').disabled")
         page.click('#run')

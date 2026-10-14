@@ -56,6 +56,7 @@ main{padding:28px 24px 40px;max-width:1200px}.wrap{max-width:1152px}.card{paddin
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
 .method-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}.method-tabs button{width:auto;min-height:40px;padding:8px 15px;background:#f3f7f9;border:1px solid #dce6eb;color:#536c7b;font-size:13px;font-weight:500}.method-tabs button[aria-pressed="true"]{background:#173f51;border-color:#173f51;color:#fff}.comparison-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px}.comparison-heading strong{font-size:15px}.comparison-heading span{font-size:12px;color:#607587}.feature-tags{display:flex;gap:5px;flex-wrap:wrap}.feature-tags span{font-size:12px;background:#edf3f6;border-radius:5px;padding:3px 7px;font-weight:400}.comparison-table{min-width:650px;table-layout:fixed}.comparison-table th:first-child{width:18%}.comparison-table th:nth-child(2){width:37%}.comparison-table th:nth-child(n+3){width:15%}.comparison-table td:nth-child(n+3),.comparison-table th:nth-child(n+3){text-align:right}.comparison-table tr.recommended{background:#f0f9f5}.row-badge{display:block;width:max-content;color:#087956;background:#def1e7;border-radius:4px;padding:2px 6px;font-size:10px;margin-top:5px}.comparison-help{font-size:12px;color:#687f8d;margin:12px 0 0;line-height:1.8}.comparison-heading:empty{display:none}@media(max-width:600px){.method-tabs{gap:6px}.method-tabs button{flex:1 1 auto;font-size:12px;padding:7px 10px}.comparison-heading{align-items:flex-start;flex-direction:column;gap:3px}}
+.model-picker{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}.model-picker label{margin:0}.model-picker select{width:180px}.model-picker button{width:auto;background:#edf5f4;color:#087f83;border:1px solid #c9e2de;font-size:13px}.selected-row{box-shadow:inset 3px 0 #087f83}.equation{background:#f1f7f8;border-left:3px solid #087f83;border-radius:8px;padding:20px;font-family:ui-monospace,monospace;font-size:15px;line-height:2;overflow-wrap:anywhere}.prediction-result{margin-top:24px;background:linear-gradient(120deg,#173f51,#136469);color:#d9efed;padding:24px;border-radius:12px;display:flex;flex-direction:column;gap:8px}.prediction-result output{font-size:34px;font-weight:750;color:#9df1d6;overflow-wrap:anywhere}.prediction-result span:last-child{font-size:12px}input[aria-invalid="true"]{border-color:#b42318}@media(max-width:600px){.model-picker select{flex:1}.model-picker button{width:100%}.equation{font-size:13px}}
 </style>
 </head>
 <body>
@@ -123,9 +124,9 @@ main{padding:28px 24px 40px;max-width:1200px}.wrap{max-width:1152px}.card{paddin
 </section>
 
 <section id="summaryCard" class="card hidden">
-  <h2>最佳模型摘要 <span class="badge">依交叉驗證選出</span></h2>
+  <h2>目前模型摘要 <span id="modelBadge" class="badge">依交叉驗證選出</span></h2>
   <div class="grid">
-    <div class="c4"><div class="kpi">推薦方法<div id="bestMethod" class="value">—</div></div></div>
+    <div class="c4"><div class="kpi">目前方法<div id="bestMethod" class="value">—</div></div></div>
     <div class="c4"><div class="kpi">測試誤差 RMSE · 越低越好<div id="bestRmse" class="value">—</div></div></div>
     <div class="c4"><div class="kpi">模型解釋力 R² · 越高越好<div id="bestR2" class="value">—</div></div></div>
   </div>
@@ -133,8 +134,9 @@ main{padding:28px 24px 40px;max-width:1200px}.wrap{max-width:1152px}.card{paddin
 </section>
 
 <section class="card">
-  <h2><span class="section-number">03</span> 特徵選擇方法比較</h2><p class="section-note">先選擇方法，再比較不同特徵數的表現。下方圖表可同時查看五種方法。</p>
+  <h2><span class="section-number">03</span> 特徵選擇方法比較</h2><p class="section-note">切換方法與特徵數，摘要、方程式、圖表標記及即時預測會同步更新。</p>
   <div id="methodTabs" class="method-tabs" role="group" aria-label="選擇要查看的特徵選擇方法"></div>
+  <div class="model-picker"><label for="featureCount">選擇特徵數</label><select id="featureCount" disabled></select><button id="restoreBest" type="button" disabled>回到推薦模型</button></div>
   <div id="comparisonHeading" class="comparison-heading" aria-live="polite"></div>
   <div class="tablewrap">
     <table class="comparison-table">
@@ -150,6 +152,19 @@ main{padding:28px 24px 40px;max-width:1200px}.wrap{max-width:1152px}.card{paddin
   <div class="c6"><div class="card"><h2>特徵數與模型解釋力</h2><div class="chartbox"><canvas id="r2Chart"></canvas></div></div></div>
 </section>
 
+<section id="modelDetails" class="card hidden">
+  <h2><span class="section-number">04</span> 迴歸方程式</h2>
+  <p class="section-note">依目前選取的模型，顯示以訓練資料擬合的係數。</p>
+  <div id="equation" class="equation" aria-live="polite"></div>
+  <p id="equationNote" class="hint"></p>
+</section>
+<section id="predictionCard" class="card hidden">
+  <h2><span class="section-number">05</span> 即時預測</h2>
+  <p class="section-note">調整目前模型使用的變數，立即查看預測結果。起始數值取自訓練資料平均值。</p>
+  <div id="predictionInputs" class="grid"></div>
+  <div class="prediction-result"><span id="predictionLabel"></span><output id="predictionValue" aria-live="polite">—</output><span id="predictionNote"></span></div>
+</section>
+
 <section class="card">
   <h2>關於這次分析</h2>
   <div class="pills">
@@ -162,6 +177,7 @@ main{padding:28px 24px 40px;max-width:1200px}.wrap{max-width:1152px}.card{paddin
 
 <script>
 let rawRows=[], headers=[], rmseChart=null, r2Chart=null;
+let modelContext=null, selectedModel=null, liveValues={};
 const $=id=>document.getElementById(id);
 
 const methodLabel=m=>({'Best Subset':'最佳子集','Forward Selection':'前向選擇','RFE':'遞迴特徵消除','Lasso':'Lasso','Elastic Net':'彈性網路（Elastic Net）'}[m]||m);
@@ -184,6 +200,10 @@ async function loadExample(){
   try { const r=await fetch($('problem').value==='startup'?'data/50_Startups.csv':'data/mpg.csv'); if(!r.ok)throw new Error('HTTP '+r.status);loadCsv(await r.text()); if($('problem').value==='custom')document.querySelectorAll('#predictors input').forEach(el=>el.checked=['displacement','horsepower','weight'].includes(el.value)); return !$('run').disabled; } catch(e){setStatus('範例載入失敗：'+e.message,false);return false}
 }
 function resetResults(){
+  modelContext=null;selectedModel=null;liveValues={};
+  $('modelDetails').classList.add('hidden');$('predictionCard').classList.add('hidden');
+  $('featureCount').replaceChildren();$('featureCount').disabled=true;$('restoreBest').disabled=true;
+  $('equation').textContent='';$('predictionInputs').replaceChildren();
   $('methodTabs').replaceChildren();$('comparisonHeading').replaceChildren();
   $('summaryCard').classList.add('hidden');
   $('tbody').innerHTML='<tr><td colspan="5">尚未產生結果。載入資料並點選「開始分析」，即可比較模型表現。</td></tr>';
@@ -249,6 +269,7 @@ function runAnalysis(){
     const lc=lassoCD(std.X,ytr,bestL,4000,ratio),rank=[...Array(p).keys()].sort((a,b)=>Math.abs(lc[b])-Math.abs(lc[a]));
     for(let k=1;k<=p;k++){const c=rank.slice(0,k);results.push(makeResult(method,k,c,cvRmse(Xtr,ytr,c,folds,seed),Xtr,ytr,Xte,yte,names))}
   }
+  modelContext={target,specs:enc.specs,trainRows,encodedColumns:enc.specs.flatMap(s=>s.type==='num'?[s.col]:s.cats.map(()=>s.col))};
   renderResults(results);
   setStatus(`分析完成：${clean.length} 筆資料（排除 ${rawRows.length-clean.length} 筆缺失或無效資料）；訓練 ${Xtr.length} 筆；測試 ${Xte.length} 筆；編碼特徵 ${p} 個。`,true);
 }
@@ -274,26 +295,84 @@ function encode(rows,predictors,target,fittedSpecs=null){
 }
 function makeResult(method,k,idxs,cv,Xtr,ytr,Xte,yte,names){
   const b=linearFit(subset(Xtr,idxs),ytr),pred=predict(subset(Xte,idxs),b);
-  return{method,k,features:idxs.map(i=>names[i]),cv,rmse:RMSE(yte,pred),r2:R2(yte,pred)};
+  return{method,k,idxs:idxs.slice(),coefficients:b,features:idxs.map(i=>names[i]),cv,rmse:RMSE(yte,pred),r2:R2(yte,pred)};
 }
 function renderResults(results){
   const best=results.reduce((a,b)=>b.cv<a.cv?b:a,results[0]);
   $('summaryCard').classList.remove('hidden');$('bestMethod').textContent=methodLabel(best.method);$('bestRmse').textContent=best.rmse.toFixed(2);$('bestR2').textContent=best.r2.toFixed(4);$('bestFeatures').textContent='選入特徵：'+best.features.map(fieldLabel).join('、');
   const comparisonMethods=[...new Set(results.map(r=>r.method))];
   $('methodTabs').replaceChildren();
+  let currentK=best.k;
   function showMethod(method){
     for(const button of $('methodTabs').children)button.setAttribute('aria-pressed',String(button.dataset.method===method));
     const rows=results.filter(r=>r.method===method).sort((a,b)=>a.k-b.k);
+    $('featureCount').innerHTML=rows.map(r=>`<option value="${r.k}">${r.k} 個特徵${r===best?' · 推薦':''}</option>`).join('');
+    $('featureCount').value=String(currentK);$('featureCount').disabled=false;$('restoreBest').disabled=false;
+    $('featureCount').onchange=()=>{currentK=Number($('featureCount').value);showMethod(method)};
+    $('restoreBest').onclick=()=>{currentK=best.k;showMethod(best.method)};
     $('comparisonHeading').innerHTML=`<strong>${esc(methodLabel(method))}</strong><span>${rows.length} 組特徵配置 · 依特徵數排列</span>`;
     $('tbody').innerHTML=rows.map(r=>`<tr class="${r===best?'recommended':''}"><td>${r.k} 個${r===best?'<span class="row-badge">推薦模型</span>':''}</td><td><div class="feature-tags">${r.features.map(f=>`<span>${esc(fieldLabel(f))}</span>`).join('')}</div></td><td class="${r===best?'best':''}">${r.cv.toFixed(2)}</td><td>${r.rmse.toFixed(2)}</td><td>${r.r2.toFixed(4)}</td></tr>`).join('');
+    const active=rows.find(r=>r.k===currentK)||rows[0];
+    [...$('tbody').rows].forEach((row,i)=>row.classList.toggle('selected-row',rows[i]===active));
+    updateModel(active,best);
   }
   for(const method of comparisonMethods){const button=document.createElement('button');button.type='button';button.textContent=methodLabel(method);button.dataset.method=method;button.setAttribute('aria-controls','tbody');button.addEventListener('click',()=>showMethod(method));$('methodTabs').append(button)}
-  showMethod(best.method);
   const methods=[...new Set(results.map(r=>r.method))],labels=[...new Set(results.map(r=>r.k))].sort((a,b)=>a-b);
   if(rmseChart)rmseChart.destroy();if(r2Chart)r2Chart.destroy();
   rmseChart=new Chart($('rmseChart'),{type:'line',data:{labels,datasets:methods.map(m=>({label:methodLabel(m),data:labels.map(k=>results.find(r=>r.method===m&&r.k===k).rmse),tension:.2,pointRadius:4}))},options:chartOpts('RMSE')});
   r2Chart=new Chart($('r2Chart'),{type:'line',data:{labels,datasets:methods.map(m=>({label:methodLabel(m),data:labels.map(k=>results.find(r=>r.method===m&&r.k===k).r2),tension:.2,pointRadius:4}))},options:chartOpts('解釋力 R²')});
+  showMethod(best.method);
 }
+
+function updateModel(model,best){
+  selectedModel=model;
+  $('bestMethod').textContent=methodLabel(model.method);
+  $('bestRmse').textContent=model.rmse.toFixed(2);$('bestR2').textContent=model.r2.toFixed(4);
+  $('bestFeatures').textContent=`目前使用 ${model.k} 個特徵：`+model.features.map(fieldLabel).join('、');
+  $('modelBadge').textContent=model===best?'交叉驗證推薦模型':'自選模型';
+  $('modelDetails').classList.remove('hidden');$('predictionCard').classList.remove('hidden');
+  const fmt=n=>Number(n.toPrecision(7)).toString();
+  $('equation').textContent=fieldLabel(modelContext.target)+' = '+fmt(model.coefficients[0])+model.features.map((f,i)=>` ${model.coefficients[i+1]<0?'−':'+'} ${fmt(Math.abs(model.coefficients[i+1]))} × ${fieldLabel(f)}`).join('');
+  const used=new Set(model.idxs.map(i=>modelContext.encodedColumns[i]));
+  const specs=modelContext.specs.filter(s=>used.has(s.col));
+  $('equationNote').textContent='方程式係數為四捨五入顯示；預測使用完整精度。'+specs.filter(s=>s.type==='cat').map(s=>`${fieldLabel(s.col)}的基準類別為 ${s.ref}；對應類別指標為 1，其餘為 0。`).join('');
+  $('predictionInputs').replaceChildren();
+  specs.forEach((spec,i)=>{
+    const wrapper=document.createElement('div');wrapper.className='c4';
+    const label=document.createElement('label');label.htmlFor='live-'+i;label.textContent=fieldLabel(spec.col);
+    const input=document.createElement(spec.type==='num'?'input':'select');input.id='live-'+i;input.dataset.column=spec.col;
+    if(!Object.hasOwn(liveValues,spec.col))liveValues[spec.col]=spec.type==='num'?Number((modelContext.trainRows.reduce((sum,r)=>sum+Number(r[spec.col]),0)/modelContext.trainRows.length).toPrecision(8)):spec.ref;
+    if(spec.type==='num'){input.type='number';input.step='any';input.value=String(liveValues[spec.col]);}
+    else{[spec.ref,...spec.cats].forEach(c=>{const option=document.createElement('option');option.value=c;option.textContent=c;input.append(option)});input.value=String(liveValues[spec.col]);}
+    input.addEventListener('input',()=>{liveValues[spec.col]=input.value;updatePrediction()});
+    input.addEventListener('change',()=>{liveValues[spec.col]=input.value;updatePrediction()});
+    wrapper.append(label,input);$('predictionInputs').append(wrapper);
+  });
+  $('predictionLabel').textContent='預測'+fieldLabel(modelContext.target);
+  updatePrediction();
+  for(const chart of [rmseChart,r2Chart])if(chart){
+    chart.data.datasets.forEach(ds=>{const active=ds.label===methodLabel(model.method);ds.borderWidth=active?3:1;ds.pointRadius=chart.data.labels.map(k=>active&&k===model.k?7:2);});chart.update();
+  }
+}
+function updatePrediction(){
+  if(!modelContext||!selectedModel)return;
+  const values={};let invalid=false,outside=false;
+  for(const input of $('predictionInputs').querySelectorAll('input,select')){
+    const col=input.dataset.column;
+    if(input.tagName==='INPUT'){
+      const n=Number(input.value);const bad=input.value.trim()===''||!Number.isFinite(n);input.setAttribute('aria-invalid',String(bad));
+      invalid ||=bad;values[col]=n;
+      const range=modelContext.trainRows.map(r=>Number(r[col]));outside ||= n<Math.min(...range)||n>Math.max(...range);
+    }else values[col]=input.value;
+  }
+  if(invalid){$('predictionValue').textContent='—';$('predictionNote').textContent='請完整填入有效數值。';return;}
+  const encoded=modelContext.specs.flatMap(s=>s.type==='num'?[values[s.col]??0]:s.cats.map(c=>String(values[s.col])===c?1:0));
+  const value=predict([selectedModel.idxs.map(i=>encoded[i])],selectedModel.coefficients)[0];
+  $('predictionValue').textContent=Number.isFinite(value)?value.toLocaleString('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  $('predictionNote').textContent=Number.isFinite(value)?(outside?'輸入超出訓練資料範圍，此為外推結果。':'依目前選取模型計算；單位與原始預測目標相同。'):'數值過大，請調整輸入。';
+}
+['predictors','seed','testSize','folds'].forEach(id=>$(id).addEventListener('change',()=>resetResults()));
+
 function chartOpts(y){return{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'}},scales:{x:{title:{display:true,text:'特徵數量'}},y:{title:{display:true,text:y}}}}}
 function shuffle(a,seed){const rnd=mulberry32(seed);a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
