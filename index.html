@@ -55,6 +55,7 @@ main{padding:28px 24px 40px;max-width:1200px}.wrap{max-width:1152px}.card{paddin
 @media(max-width:600px){header{padding:22px 20px 34px}.brand{font-size:12px;gap:8px;margin-bottom:30px}.brand-icon{width:27px;height:27px}.sub{font-size:13px}main{padding:18px 14px 24px}.card{padding:20px 16px;border-radius:13px;margin-bottom:16px}h2{font-size:17px;gap:8px}.hero-tags{gap:6px}.hero-tags span{font-size:10px;padding:4px 7px}.badge{font-size:10px;padding:3px 6px}.chartbox{height:280px}.kpi{padding:16px}.kpi .value{margin-top:5px}.grid{gap:14px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
+.method-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}.method-tabs button{width:auto;min-height:40px;padding:8px 15px;background:#f3f7f9;border:1px solid #dce6eb;color:#536c7b;font-size:13px;font-weight:500}.method-tabs button[aria-pressed="true"]{background:#173f51;border-color:#173f51;color:#fff}.comparison-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px}.comparison-heading strong{font-size:15px}.comparison-heading span{font-size:12px;color:#607587}.feature-tags{display:flex;gap:5px;flex-wrap:wrap}.feature-tags span{font-size:12px;background:#edf3f6;border-radius:5px;padding:3px 7px;font-weight:400}.comparison-table{min-width:650px;table-layout:fixed}.comparison-table th:first-child{width:18%}.comparison-table th:nth-child(2){width:37%}.comparison-table th:nth-child(n+3){width:15%}.comparison-table td:nth-child(n+3),.comparison-table th:nth-child(n+3){text-align:right}.comparison-table tr.recommended{background:#f0f9f5}.row-badge{display:block;width:max-content;color:#087956;background:#def1e7;border-radius:4px;padding:2px 6px;font-size:10px;margin-top:5px}.comparison-help{font-size:12px;color:#687f8d;margin:12px 0 0;line-height:1.8}.comparison-heading:empty{display:none}@media(max-width:600px){.method-tabs{gap:6px}.method-tabs button{flex:1 1 auto;font-size:12px;padding:7px 10px}.comparison-heading{align-items:flex-start;flex-direction:column;gap:3px}}
 </style>
 </head>
 <body>
@@ -132,13 +133,16 @@ main{padding:28px 24px 40px;max-width:1200px}.wrap{max-width:1152px}.card{paddin
 </section>
 
 <section class="card">
-  <h2><span class="section-number">03</span> 五種方法，一次比較</h2><p class="section-note">同時比較不同特徵數的表現；綠色數值標示交叉驗證選出的模型。小螢幕可左右滑動表格。</p>
+  <h2><span class="section-number">03</span> 特徵選擇方法比較</h2><p class="section-note">先選擇方法，再比較不同特徵數的表現。下方圖表可同時查看五種方法。</p>
+  <div id="methodTabs" class="method-tabs" role="group" aria-label="選擇要查看的特徵選擇方法"></div>
+  <div id="comparisonHeading" class="comparison-heading" aria-live="polite"></div>
   <div class="tablewrap">
-    <table>
-      <thead><tr><th>選擇方法</th><th>特徵數</th><th>選入特徵</th><th>驗證 RMSE</th><th>測試 RMSE</th><th>解釋力 R²</th></tr></thead>
-      <tbody id="tbody"><tr><td colspan="6" class="small">尚未產生結果。載入資料並點選「開始分析」，即可比較模型表現。</td></tr></tbody>
+    <table class="comparison-table">
+      <thead><tr><th scope="col">特徵數</th><th scope="col">選入特徵</th><th scope="col">驗證 RMSE</th><th scope="col">測試 RMSE</th><th scope="col">解釋力 R²</th></tr></thead>
+      <tbody id="tbody"><tr><td colspan="5" class="small">尚未產生結果。載入資料並點選「開始分析」，即可比較模型表現。</td></tr></tbody>
     </table>
   </div>
+  <p class="comparison-help">RMSE 越低越好，R² 越高越好。「推薦模型」依所有方法中最低的驗證 RMSE 選出。小螢幕可左右滑動表格。</p>
 </section>
 
 <section class="grid">
@@ -180,8 +184,9 @@ async function loadExample(){
   try { const r=await fetch($('problem').value==='startup'?'data/50_Startups.csv':'data/mpg.csv'); if(!r.ok)throw new Error('HTTP '+r.status);loadCsv(await r.text()); if($('problem').value==='custom')document.querySelectorAll('#predictors input').forEach(el=>el.checked=['displacement','horsepower','weight'].includes(el.value)); return !$('run').disabled; } catch(e){setStatus('範例載入失敗：'+e.message,false);return false}
 }
 function resetResults(){
+  $('methodTabs').replaceChildren();$('comparisonHeading').replaceChildren();
   $('summaryCard').classList.add('hidden');
-  $('tbody').innerHTML='<tr><td colspan="6">尚未產生結果。載入資料並點選「開始分析」，即可比較模型表現。</td></tr>';
+  $('tbody').innerHTML='<tr><td colspan="5">尚未產生結果。載入資料並點選「開始分析」，即可比較模型表現。</td></tr>';
   $('featurePills').textContent='尚未建立特徵。';
   if(rmseChart)rmseChart.destroy(); if(r2Chart)r2Chart.destroy(); rmseChart=r2Chart=null;
 }
@@ -274,7 +279,16 @@ function makeResult(method,k,idxs,cv,Xtr,ytr,Xte,yte,names){
 function renderResults(results){
   const best=results.reduce((a,b)=>b.cv<a.cv?b:a,results[0]);
   $('summaryCard').classList.remove('hidden');$('bestMethod').textContent=methodLabel(best.method);$('bestRmse').textContent=best.rmse.toFixed(2);$('bestR2').textContent=best.r2.toFixed(4);$('bestFeatures').textContent='選入特徵：'+best.features.map(fieldLabel).join('、');
-  $('tbody').innerHTML=results.map(r=>`<tr><td>${methodLabel(r.method)}</td><td>${r.k}</td><td>${esc(r.features.map(fieldLabel).join('、'))}</td><td>${r.cv.toFixed(2)}</td><td class="${r===best?'best':''}">${r.rmse.toFixed(2)}</td><td>${r.r2.toFixed(4)}</td></tr>`).join('');
+  const comparisonMethods=[...new Set(results.map(r=>r.method))];
+  $('methodTabs').replaceChildren();
+  function showMethod(method){
+    for(const button of $('methodTabs').children)button.setAttribute('aria-pressed',String(button.dataset.method===method));
+    const rows=results.filter(r=>r.method===method).sort((a,b)=>a.k-b.k);
+    $('comparisonHeading').innerHTML=`<strong>${esc(methodLabel(method))}</strong><span>${rows.length} 組特徵配置 · 依特徵數排列</span>`;
+    $('tbody').innerHTML=rows.map(r=>`<tr class="${r===best?'recommended':''}"><td>${r.k} 個${r===best?'<span class="row-badge">推薦模型</span>':''}</td><td><div class="feature-tags">${r.features.map(f=>`<span>${esc(fieldLabel(f))}</span>`).join('')}</div></td><td class="${r===best?'best':''}">${r.cv.toFixed(2)}</td><td>${r.rmse.toFixed(2)}</td><td>${r.r2.toFixed(4)}</td></tr>`).join('');
+  }
+  for(const method of comparisonMethods){const button=document.createElement('button');button.type='button';button.textContent=methodLabel(method);button.dataset.method=method;button.setAttribute('aria-controls','tbody');button.addEventListener('click',()=>showMethod(method));$('methodTabs').append(button)}
+  showMethod(best.method);
   const methods=[...new Set(results.map(r=>r.method))],labels=[...new Set(results.map(r=>r.k))].sort((a,b)=>a-b);
   if(rmseChart)rmseChart.destroy();if(r2Chart)r2Chart.destroy();
   rmseChart=new Chart($('rmseChart'),{type:'line',data:{labels,datasets:methods.map(m=>({label:methodLabel(m),data:labels.map(k=>results.find(r=>r.method===m&&r.k===k).rmse),tension:.2,pointRadius:4}))},options:chartOpts('RMSE')});

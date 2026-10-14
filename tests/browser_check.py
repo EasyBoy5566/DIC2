@@ -20,7 +20,9 @@ try:
         page.wait_for_function("document.getElementById('status').textContent.startsWith('分析完成')")
         assert page.locator('#problem').input_value()=='startup'
         assert page.locator('#target').input_value()=='Profit'
-        assert page.locator('#tbody tr').count()==25
+        assert page.locator('#tbody tr').count()==5
+        assert page.locator('#methodTabs button').count()==5
+        assert page.locator('#tbody .row-badge').inner_text()=='推薦模型'
         assert page.locator('#summaryCard').is_visible()
         outputs=[]
         for problem,expected in [('startup',25),('custom',15)]:
@@ -29,10 +31,16 @@ try:
             page.wait_for_function("!document.getElementById('run').disabled")
             page.click('#run')
             page.wait_for_function("document.getElementById('status').textContent.startsWith('分析完成')",timeout=120000)
-            assert page.locator('#tbody tr').count()==expected
-            text=page.locator('#tbody').inner_text()
-            assert 'NaN' not in text and 'Infinity' not in text
-            assert 'Elastic Net' in text
+            total=0
+            for button in page.locator('#methodTabs button').all():
+                button.click()
+                assert button.get_attribute('aria-pressed')=='true'
+                assert page.locator('#methodTabs [aria-pressed="true"]').count()==1
+                assert page.locator('#tbody tr').count()==expected//5
+                total+=page.locator('#tbody tr').count()
+                text=page.locator('#tbody').inner_text()
+                assert 'NaN' not in text and 'Infinity' not in text
+            assert total==expected
             outputs.append({'problem':problem,'status':page.locator('#status').inner_text(),'method':page.locator('#bestMethod').inner_text(),'rmse':page.locator('#bestRmse').inner_text()})
         page.evaluate("loadCsv('a,b\\n1,2,3\\n4,5')")
         assert page.locator('#run').is_disabled()
