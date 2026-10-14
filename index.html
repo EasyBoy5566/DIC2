@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DIC2 Multiple Linear Regression Explorer</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#dbe2ea;
+  --primary:#2563eb;--primary2:#1d4ed8;--ok:#047857;--bad:#b42318;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#111827,#1e3a8a);color:#fff;padding:28px 20px}
+.wrap,main{max-width:1220px;margin:auto}
+h1{margin:0 0 7px;font-size:28px} h2{font-size:19px;margin:0 0 14px} p{line-height:1.55}
+.sub{margin:0;color:#dbeafe}
+main{padding:22px 16px 44px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 3px 14px rgba(15,23,42,.05)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}.c8{grid-column:span 8}.c12{grid-column:span 12}
+@media(max-width:900px){.c3,.c4,.c6,.c8{grid-column:span 12}}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+input,select,button{width:100%;padding:10px 11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;font:inherit}
+button{background:var(--primary);border:0;color:#fff;font-weight:700;cursor:pointer}
+button:hover{background:var(--primary2)} button:disabled{opacity:.5;cursor:not-allowed}
+.status{padding:11px 12px;margin-top:12px;border-radius:9px;background:#eef4ff;color:#244b88;white-space:pre-wrap}
+.status.ok{background:#ecfdf3;color:#05603a}.status.bad{background:#fff1f0;color:#8f241c}
+.hint,.small{font-size:13px;color:var(--muted)}
+.workflow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.step{text-align:center;background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:10px;font-size:12px}
+.step b{display:block;font-size:15px;margin-bottom:4px}
+@media(max-width:800px){.workflow{grid-template-columns:repeat(2,1fr)}}
+.checks{display:flex;flex-wrap:wrap;gap:8px}.check{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:7px 9px}.check input{width:auto}
+.pills{display:flex;flex-wrap:wrap;gap:7px}.pill{padding:5px 9px;border-radius:999px;background:#eef2f7;border:1px solid #dce3eb;font-size:12px}
+.tablewrap{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:9px 10px;border-bottom:1px solid #e7edf3;text-align:left;vertical-align:top}th{position:sticky;top:0;background:#f8fafc;z-index:1}
+.kpi{border:1px solid var(--line);background:#fbfcfe;border-radius:10px;padding:14px}.kpi .value{font-size:23px;font-weight:800;margin-top:5px}
+.hidden{display:none}.best{color:var(--ok);font-weight:800}.chartbox{height:360px}
+code{background:#eef2f7;padding:2px 5px;border-radius:5px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>DIC2 — Multiple Linear Regression Explorer</h1>
+    <p class="sub">Two Problems × CRISP-DM Workflow × 5 Feature Selection Techniques</p>
+  </div>
+</header>
+
+<main>
+<section class="card">
+  <div class="grid">
+    <div class="c4">
+      <label>Problem</label>
+      <select id="problem">
+        <option value="startup">Problem 1 — 50 Startups Profit Prediction</option>
+        <option value="custom">Problem 2 — Generic Regression Skill / Workflow</option>
+      </select>
+    </div>
+    <div class="c8">
+      <label>Dataset URL</label>
+      <input id="url" value="https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv">
+    </div>
+    <div class="c4"><button id="loadUrl">Load Dataset from URL</button></div>
+    <div class="c4"><label>或上傳 CSV</label><input id="file" type="file" accept=".csv,text/csv"></div>
+    <div class="c4">
+      <label>Test size</label>
+      <select id="testSize"><option value="0.2">20%</option><option value="0.25">25%</option><option value="0.3">30%</option></select>
+    </div>
+  </div>
+  <div id="status" class="status">Problem 1 已預填 50 Startups Dataset URL。按 Load Dataset from URL 開始。</div>
+</section>
+
+<section class="card">
+  <h2>CRISP-DM / Skill Workflow</h2>
+  <div class="workflow">
+    <div class="step"><b>1</b>Business Understanding</div>
+    <div class="step"><b>2</b>Data Understanding</div>
+    <div class="step"><b>3</b>Data Preparation</div>
+    <div class="step"><b>4</b>Modeling</div>
+    <div class="step"><b>5</b>Evaluation</div>
+    <div class="step"><b>6</b>Deployment</div>
+  </div>
+  <p id="problemDesc" class="hint">Problem 1：以 R&D Spend、Administration、Marketing Spend、State 預測 Profit。State 採 drop-first one-hot encoding，因此模型共有 5 個 encoded input features。</p>
+</section>
+
+<section class="card">
+  <h2>Dataset Setup</h2>
+  <div class="grid">
+    <div class="c4"><label>Target (y)</label><select id="target" disabled></select></div>
+    <div class="c4"><label>Random seed</label><input id="seed" type="number" value="42"></div>
+    <div class="c4"><label>CV folds</label><select id="folds"><option>5</option><option>4</option><option>3</option></select></div>
+    <div class="c12"><label>Predictor columns</label><div id="predictors" class="checks"><span class="small">Load dataset first.</span></div></div>
+    <div class="c4"><button id="run" disabled>Run Analysis</button></div>
+    <div class="c8"><div id="datasetInfo" class="hint"></div></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Encoded Input Features</h2>
+  <div id="featurePills" class="pills"><span class="small">尚未建立特徵。</span></div>
+</section>
+
+<section id="summaryCard" class="card hidden">
+  <h2>Best Model Summary</h2>
+  <div class="grid">
+    <div class="c4"><div class="kpi">Best Method<div id="bestMethod" class="value">—</div></div></div>
+    <div class="c4"><div class="kpi">Lowest Test RMSE<div id="bestRmse" class="value">—</div></div></div>
+    <div class="c4"><div class="kpi">R-squared<div id="bestR2" class="value">—</div></div></div>
+  </div>
+  <p id="bestFeatures" class="hint"></p>
+</section>
+
+<section class="card">
+  <h2>Feature Selection Results</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Method</th><th># Features</th><th>Selected Features</th><th>CV RMSE</th><th>Test RMSE</th><th>R-squared</th></tr></thead>
+      <tbody id="tbody"><tr><td colspan="6" class="small">Run analysis to see results.</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="grid">
+  <div class="c6"><div class="card"><h2>RMSE by Number of Features</h2><div class="chartbox"><canvas id="rmseChart"></canvas></div></div></div>
+  <div class="c6"><div class="card"><h2>R-squared by Number of Features</h2><div class="chartbox"><canvas id="r2Chart"></canvas></div></div></div>
+</section>
+
+<section class="card">
+  <h2>Five Feature Selection Techniques</h2>
+  <div class="pills">
+    <span class="pill">Best Subset</span><span class="pill">Forward Selection</span>
+    <span class="pill">Backward Elimination</span><span class="pill">RFE</span><span class="pill">Lasso (L1)</span>
+  </div>
+  <p class="hint">Selection 使用 training data；test set 僅用於最後 RMSE / R² 評估。Problem 2 直接套用同一個可重複使用的 regression workflow 到任意 CSV。</p>
+</section>
+</main>
+
+<script>
+let rawRows=[], headers=[], rmseChart=null, r2Chart=null;
+const $=id=>document.getElementById(id);
+const STARTUP_URL='https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv';
+
+$('problem').addEventListener('change',()=>{
+  if($('problem').value==='startup'){
+    $('url').value=STARTUP_URL;
+    $('problemDesc').textContent='Problem 1：以 R&D Spend、Administration、Marketing Spend、State 預測 Profit。State 採 drop-first one-hot encoding，因此模型共有 5 個 encoded input features。';
+  }else{
+    $('url').value='';
+    $('problemDesc').textContent='Problem 2：直接套用 Generic Multiple Linear Regression Skill / Workflow。可輸入任意公開 CSV URL 或上傳 CSV，自行指定 target 與 predictors，並自動完成資料準備、5 種 feature selection、建模與評估。';
+  }
+});
+$('loadUrl').addEventListener('click',async()=>{
+  const url=$('url').value.trim(); if(!url)return setStatus('請輸入 Dataset URL。',false);
+  setStatus('Loading dataset…');
+  try{const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);loadCsv(await r.text())}
+  catch(e){setStatus('Dataset 載入失敗：'+e.message+'\n若來源阻擋 CORS，請改用 CSV 上傳。',false)}
+});
+$('file').addEventListener('change',async e=>{const f=e.target.files[0];if(f)loadCsv(await f.text())});
+
+function loadCsv(text){
+  const p=Papa.parse(text,{header:true,dynamicTyping:true,skipEmptyLines:true});
+  rawRows=p.data; headers=p.meta.fields||Object.keys(rawRows[0]||{});
+  if(!rawRows.length)return setStatus('Dataset is empty.',false);
+  $('target').innerHTML=headers.map(h=>`<option value="${esc(h)}">${esc(h)}</option>`).join('');
+  let t=headers.includes('Profit')?'Profit':headers[headers.length-1];
+  $('target').value=t;$('target').disabled=false;renderPredictors(t);$('target').onchange=()=>renderPredictors($('target').value);
+  $('run').disabled=false;$('datasetInfo').textContent=`Rows: ${rawRows.length} | Columns: ${headers.length}`;
+  setStatus(`Dataset loaded: ${rawRows.length} rows × ${headers.length} columns.\n請確認 Target 與 predictors，再執行分析。`,true);
+}
+function renderPredictors(target){
+  $('predictors').innerHTML=headers.filter(h=>h!==target).map(h=>`<label class="check"><input type="checkbox" value="${esc(h)}" checked>${esc(h)}</label>`).join('');
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function setStatus(msg,ok=null){$('status').textContent=msg;$('status').className='status'+(ok===true?' ok':ok===false?' bad':'')}
+
+$('run').addEventListener('click',()=>{try{runAnalysis()}catch(e){console.error(e);setStatus('分析失敗：'+e.message,false)}});
+
+function runAnalysis(){
+  const target=$('target').value;
+  const predictors=[...document.querySelectorAll('#predictors input:checked')].map(x=>x.value);
+  if(!predictors.length)throw new Error('至少選擇一個 predictor。');
+  const clean=rawRows.filter(r=>r[target]!==null&&r[target]!==''&&Number.isFinite(Number(r[target])));
+  if(clean.length<10)throw new Error('可用 numeric target 資料不足 10 筆。');
+  const enc=encode(clean,predictors,target);let names=enc.names,X=enc.X,y=enc.y;
+  if(names.length>10){names=names.slice(0,10);X=X.map(r=>r.slice(0,10));setStatus('Encoded features 超過 10 個；為避免 Best Subset 組合爆炸，本次使用前 10 個 encoded features。',true)}
+  $('featurePills').innerHTML=names.map(n=>`<span class="pill">${esc(n)}</span>`).join('')+`<span class="pill"><b>Total: ${names.length}</b></span>`;
+  const seed=Number($('seed').value)||42,testSize=Number($('testSize').value),folds=Number($('folds').value)||5;
+  const ids=shuffle([...Array(X.length).keys()],seed),nTest=Math.max(2,Math.round(X.length*testSize)),te=ids.slice(0,nTest),tr=ids.slice(nTest);
+  const Xtr=tr.map(i=>X[i]),ytr=tr.map(i=>y[i]),Xte=te.map(i=>X[i]),yte=te.map(i=>y[i]);
+  const p=names.length,results=[];
+
+  for(let k=1;k<=p;k++){let best={cv:Infinity,idxs:null};for(const c of combinations([...Array(p).keys()],k)){const v=cvRmse(Xtr,ytr,c,folds,seed);if(v<best.cv)best={cv:v,idxs:c}}results.push(makeResult('Best Subset',k,best.idxs,best.cv,Xtr,ytr,Xte,yte,names))}
+  let selected=[],remain=[...Array(p).keys()];for(let k=1;k<=p;k++){let best={cv:Infinity,f:null,idxs:null};for(const f of remain){const c=[...selected,f],v=cvRmse(Xtr,ytr,c,folds,seed);if(v<best.cv)best={cv:v,f,idxs:c}}selected=best.idxs.slice();remain=remain.filter(x=>x!==best.f);results.push(makeResult('Forward Selection',k,selected,best.cv,Xtr,ytr,Xte,yte,names))}
+  let cur=[...Array(p).keys()],sets={[p]:cur.slice()};while(cur.length>1){let best={cv:Infinity,idxs:null};for(const f of cur){const c=cur.filter(x=>x!==f),v=cvRmse(Xtr,ytr,c,folds,seed);if(v<best.cv)best={cv:v,idxs:c}}cur=best.idxs.slice();sets[cur.length]=cur.slice()}for(let k=1;k<=p;k++){const c=sets[k];results.push(makeResult('Backward Elimination',k,c,cvRmse(Xtr,ytr,c,folds,seed),Xtr,ytr,Xte,yte,names))}
+  let rc=[...Array(p).keys()],rsets={[p]:rc.slice()};while(rc.length>1){const std=standardize(subset(Xtr,rc)),b=linearFit(std.X,ytr).slice(1).map(Math.abs);let m=0;for(let i=1;i<b.length;i++)if(b[i]<b[m])m=i;rc=rc.filter((_,i)=>i!==m);rsets[rc.length]=rc.slice()}for(let k=1;k<=p;k++){const c=rsets[k];results.push(makeResult('RFE',k,c,cvRmse(Xtr,ytr,c,folds,seed),Xtr,ytr,Xte,yte,names))}
+  const std=standardize(Xtr),lambdas=[.0001,.001,.01,.05,.1,.5,1,5,10,50,100,500,1000];let bestL=lambdas[0],bestScore=Infinity;
+  for(const lam of lambdas){const score=lassoCv(Xtr,ytr,lam,folds,seed);if(score<bestScore){bestScore=score;bestL=lam}}
+  const lc=lassoCD(std.X,ytr,bestL),rank=[...Array(p).keys()].sort((a,b)=>Math.abs(lc[b])-Math.abs(lc[a]));
+  for(let k=1;k<=p;k++){const c=rank.slice(0,k);results.push(makeResult('Lasso',k,c,cvRmse(Xtr,ytr,c,folds,seed),Xtr,ytr,Xte,yte,names))}
+  renderResults(results);
+  setStatus(`分析完成：${X.length} rows；Training ${Xtr.length}；Test ${Xte.length}；Encoded input features ${p}。`,true);
+}
+function encode(rows,predictors,target){
+  const specs=[];
+  for(const col of predictors){
+    const vals=rows.map(r=>r[col]).filter(v=>v!==null&&v!=='');
+    const numeric=vals.length&&vals.every(v=>Number.isFinite(Number(v)));
+    if(numeric)specs.push({col,type:'num'});
+    else{const cats=[...new Set(vals.map(String))].sort();specs.push({col,type:'cat',cats:cats.slice(1),ref:cats[0]})}
+  }
+  const names=[];specs.forEach(s=>s.type==='num'?names.push(s.col):s.cats.forEach(c=>names.push(`${s.col}_${c}`)));
+  const X=[],y=[];
+  for(const r of rows){
+    const row=[];let valid=true;
+    for(const s of specs){
+      if(s.type==='num'){const v=Number(r[s.col]);if(!Number.isFinite(v)){valid=false;break}row.push(v)}
+      else s.cats.forEach(c=>row.push(String(r[s.col])===c?1:0));
+    }
+    const t=Number(r[target]);if(valid&&Number.isFinite(t)){X.push(row);y.push(t)}
+  }
+  return{X,y,names};
+}
+function makeResult(method,k,idxs,cv,Xtr,ytr,Xte,yte,names){
+  const b=linearFit(subset(Xtr,idxs),ytr),pred=predict(subset(Xte,idxs),b);
+  return{method,k,features:idxs.map(i=>names[i]),cv,rmse:RMSE(yte,pred),r2:R2(yte,pred)};
+}
+function renderResults(results){
+  const best=results.reduce((a,b)=>b.rmse<a.rmse?b:a,results[0]);
+  $('summaryCard').classList.remove('hidden');$('bestMethod').textContent=best.method;$('bestRmse').textContent=best.rmse.toFixed(2);$('bestR2').textContent=best.r2.toFixed(4);$('bestFeatures').textContent='Selected features: '+best.features.join(', ');
+  $('tbody').innerHTML=results.map(r=>`<tr><td>${r.method}</td><td>${r.k}</td><td>${esc(r.features.join(', '))}</td><td>${r.cv.toFixed(2)}</td><td class="${r===best?'best':''}">${r.rmse.toFixed(2)}</td><td>${r.r2.toFixed(4)}</td></tr>`).join('');
+  const methods=[...new Set(results.map(r=>r.method))],labels=[...new Set(results.map(r=>r.k))].sort((a,b)=>a-b);
+  if(rmseChart)rmseChart.destroy();if(r2Chart)r2Chart.destroy();
+  rmseChart=new Chart($('rmseChart'),{type:'line',data:{labels,datasets:methods.map(m=>({label:m,data:labels.map(k=>results.find(r=>r.method===m&&r.k===k).rmse),tension:.2,pointRadius:4}))},options:chartOpts('RMSE')});
+  r2Chart=new Chart($('r2Chart'),{type:'line',data:{labels,datasets:methods.map(m=>({label:m,data:labels.map(k=>results.find(r=>r.method===m&&r.k===k).r2),tension:.2,pointRadius:4}))},options:chartOpts('R-squared')});
+}
+function chartOpts(y){return{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'}},scales:{x:{title:{display:true,text:'Number of Features'}},y:{title:{display:true,text:y}}}}}
+function shuffle(a,seed){const rnd=mulberry32(seed);a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function combinations(arr,k){const out=[];function rec(s,c){if(c.length===k){out.push(c.slice());return}for(let i=s;i<arr.length;i++){c.push(arr[i]);rec(i+1,c);c.pop()}}rec(0,[]);return out}
+function subset(X,idxs){return X.map(r=>idxs.map(i=>r[i]))}
+function transpose(A){return A[0].map((_,i)=>A.map(r=>r[i]))}
+function matMul(A,B){const BT=transpose(B);return A.map(r=>BT.map(c=>r.reduce((s,v,i)=>s+v*c[i],0)))}
+function matVec(A,v){return A.map(r=>r.reduce((s,x,i)=>s+x*v[i],0))}
+function inverse(M){const n=M.length,A=M.map((r,i)=>r.slice().concat(Array.from({length:n},(_,j)=>i===j?1:0)));for(let i=0;i<n;i++){let piv=i;for(let r=i+1;r<n;r++)if(Math.abs(A[r][i])>Math.abs(A[piv][i]))piv=r;[A[i],A[piv]]=[A[piv],A[i]];if(Math.abs(A[i][i])<1e-10)A[i][i]+=1e-8;const p=A[i][i];for(let j=0;j<2*n;j++)A[i][j]/=p;for(let r=0;r<n;r++){if(r===i)continue;const f=A[r][i];for(let j=0;j<2*n;j++)A[r][j]-=f*A[i][j]}}return A.map(r=>r.slice(n))}
+function linearFit(X,y){const A=X.map(r=>[1,...r]),AT=transpose(A),ATA=matMul(AT,A);for(let i=1;i<ATA.length;i++)ATA[i][i]+=1e-8;return matVec(inverse(ATA),matVec(AT,y))}
+function predict(X,b){return X.map(r=>b[0]+r.reduce((s,v,i)=>s+v*b[i+1],0))}
+function RMSE(y,p){return Math.sqrt(y.reduce((s,v,i)=>s+(v-p[i])**2,0)/y.length)}
+function R2(y,p){const m=y.reduce((a,b)=>a+b,0)/y.length,sst=y.reduce((s,v)=>s+(v-m)**2,0),sse=y.reduce((s,v,i)=>s+(v-p[i])**2,0);return 1-sse/sst}
+function cvRmse(X,y,idxs,folds,seed){const ids=shuffle([...Array(X.length).keys()],seed),scores=[];for(let f=0;f<folds;f++){const va=ids.filter((_,i)=>i%folds===f),tr=ids.filter((_,i)=>i%folds!==f),b=linearFit(subset(tr.map(i=>X[i]),idxs),tr.map(i=>y[i])),p=predict(subset(va.map(i=>X[i]),idxs),b);scores.push(RMSE(va.map(i=>y[i]),p))}return scores.reduce((a,b)=>a+b,0)/scores.length}
+function standardize(X){const p=X[0].length,means=[],sds=[];for(let j=0;j<p;j++){const v=X.map(r=>r[j]),m=v.reduce((a,b)=>a+b,0)/v.length,sd=Math.sqrt(v.reduce((s,x)=>s+(x-m)**2,0)/v.length)||1;means.push(m);sds.push(sd)}return{means,sds,X:X.map(r=>r.map((v,j)=>(v-means[j])/sds[j]))}}
+function lassoCD(X,y,lambda,iters=4000){const n=X.length,p=X[0].length,ym=y.reduce((a,b)=>a+b,0)/n,yc=y.map(v=>v-ym),b=Array(p).fill(0),soft=(z,g)=>Math.sign(z)*Math.max(Math.abs(z)-g,0);for(let it=0;it<iters;it++){let mc=0;for(let j=0;j<p;j++){let rho=0,z=0;for(let i=0;i<n;i++){let pr=0;for(let k=0;k<p;k++)if(k!==j)pr+=X[i][k]*b[k];rho+=X[i][j]*(yc[i]-pr);z+=X[i][j]*X[i][j]}const nb=soft(rho,lambda*n)/(z||1);mc=Math.max(mc,Math.abs(nb-b[j]));b[j]=nb}if(mc<1e-7)break}return b}
+function lassoCv(X,y,lambda,folds,seed){const ids=shuffle([...Array(X.length).keys()],seed),scores=[];for(let f=0;f<folds;f++){const va=ids.filter((_,i)=>i%folds===f),tr=ids.filter((_,i)=>i%folds!==f),Xt=tr.map(i=>X[i]),yt=tr.map(i=>y[i]),Xv=va.map(i=>X[i]),yv=va.map(i=>y[i]),s=standardize(Xt),XsV=Xv.map(r=>r.map((v,j)=>(v-s.means[j])/s.sds[j])),coef=lassoCD(s.X,yt,lambda),ym=yt.reduce((a,b)=>a+b,0)/yt.length,p=XsV.map(r=>ym+r.reduce((q,v,j)=>q+v*coef[j],0));scores.push(RMSE(yv,p))}return scores.reduce((a,b)=>a+b,0)/scores.length}
+</script>
+</body>
+</html>
