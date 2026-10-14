@@ -17,6 +17,11 @@ try:
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.goto(f'http://127.0.0.1:{server.server_port}')
         page.wait_for_function("typeof Papa !== 'undefined' && typeof Chart !== 'undefined'")
+        page.wait_for_function("document.getElementById('status').textContent.startsWith('分析完成')")
+        assert page.locator('#problem').input_value()=='startup'
+        assert page.locator('#target').input_value()=='Profit'
+        assert page.locator('#tbody tr').count()==25
+        assert page.locator('#summaryCard').is_visible()
         outputs=[]
         for problem,expected in [('startup',25),('custom',15)]:
             page.select_option('#problem',problem)
