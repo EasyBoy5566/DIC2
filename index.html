@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DIC2 Multiple Linear Regression Explorer</title>
+<title>DIC2｜多元線性迴歸探索室</title>
 <script src="vendor/papaparse.min.js"></script>
 <script src="vendor/chart.umd.min.js"></script>
 <style>
@@ -40,119 +40,138 @@ table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:9px 10px;
 .kpi{border:1px solid var(--line);background:#fbfcfe;border-radius:10px;padding:14px}.kpi .value{font-size:23px;font-weight:800;margin-top:5px}
 .hidden{display:none}.best{color:var(--ok);font-weight:800}.chartbox{height:360px}
 code{background:#eef2f7;padding:2px 5px;border-radius:5px}
+
+:root{--bg:#f3f6f9;--ink:#182f41;--muted:#607587;--line:#e0e8ef;--primary:#087f83;--primary2:#06666a;--ok:#087956}
+body{font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.65;letter-spacing:.015em}
+header{position:relative;overflow:hidden;background:radial-gradient(ellipse at 90% 10%,#24636b 0,transparent 55%),linear-gradient(120deg,#112b3c,#183e4e);padding:26px 28px 58px}
+header::after{content:"";position:absolute;width:360px;height:360px;border:1px solid #ffffff12;border-radius:50%;right:-90px;top:60px;box-shadow:0 0 0 55px #ffffff03,0 0 0 110px #ffffff03;pointer-events:none}
+.brand{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:650;margin-bottom:38px;color:#dfedef}.brand-icon{display:grid;place-items:center;background:#76e2cd;color:#123c43;width:32px;height:32px;border-radius:10px;font-size:24px}.brand-divider{opacity:.35;margin:0 4px}.eyebrow{font-size:12px;letter-spacing:.18em;color:#8adacb;margin-bottom:14px}
+h1{font-size:clamp(27px,3.5vw,42px);letter-spacing:.025em;font-weight:750;line-height:1.4;margin-bottom:16px}.sub{color:#bcd0da;max-width:660px;font-size:15px;line-height:1.9}.hero-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.hero-tags span{border:1px solid #ffffff25;border-radius:6px;padding:5px 11px;color:#daeae9;font-size:12px;background:#ffffff05}
+main{padding:28px 24px 40px;max-width:1200px}.wrap{max-width:1152px}.card{padding:26px;border-radius:16px;border-color:#e2e9ee;box-shadow:0 4px 20px #19384904;margin-bottom:22px}.data-card{border-top:3px solid #0c9695}h2{display:flex;align-items:center;gap:12px;font-size:19px;letter-spacing:.03em;margin-bottom:20px}.section-number{font-size:12px;color:#087f83;background:#e9f6f3;border:1px solid #cee9e2;border-radius:7px;padding:3px 8px}.section-note{margin:-8px 0 22px;font-size:13px;color:var(--muted)}
+.grid{gap:18px;align-items:end}label{font-size:13px;color:#476071;margin-bottom:8px}input,select,button{min-height:46px;font-size:14px;border-radius:9px}input,select{background:#fafcfd;border-color:#d9e3eb;color:var(--ink)}input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #77cfc7;outline-offset:3px}button{transition:background .15s,box-shadow .15s}button:hover:not(:disabled){box-shadow:0 4px 14px #087f8325}#loadUrl{background:#eaf4f4;color:#096a70;border:1px solid #c9e2e2}#loadUrl:hover{background:#dceeed}#run{background:#173f51}input[type=file]{padding:6px;min-height:46px;font-size:12px}input::file-selector-button{border:0;background:#e7eef3;padding:7px 10px;border-radius:5px;margin-right:8px;color:#355064}.status{font-size:13px;background:#eff5f8;color:#456777;padding:14px 16px;margin-top:20px;border-left:3px solid #adc7d5}.status.ok{border-left-color:#31a37c;background:#eff9f4}.status.bad{border-left-color:#d85b53}
+.workflow{gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}.step{border:0;border-right:1px solid var(--line);border-radius:0;padding:16px 5px;background:#fafcfd;font-size:13px;color:#476071}.step:last-child{border-right:0}.step b{display:block;width:26px;height:26px;line-height:26px;margin:0 auto 8px;background:#e6f2f0;color:#087f83;border-radius:50%;font-size:12px}#problemDesc{line-height:1.9;margin-bottom:0}.check{padding:9px 12px;margin-bottom:0;background:#fff;cursor:pointer;font-weight:500}.check:has(input:checked){border-color:#9dcfc6;background:#eff8f5;color:#146c64}.check input{min-height:0;accent-color:#087f83}.pill{padding:6px 11px;background:#f3f7f9;border-color:#e1e9ee;color:#4e6777}.kpi{background:#f7fafb;border:1px solid #e2eaef;border-radius:12px;padding:22px 18px;font-size:12px;color:#5a7180}.kpi .value{font-size:30px;letter-spacing:-.02em;color:#123e4b;font-variant-numeric:tabular-nums;line-height:1.5;margin-top:12px}#bestMethod{font-size:25px}.badge{font-size:11px;font-weight:500;background:#e8f6ef;color:#14815f;padding:4px 9px;border-radius:20px;margin-left:auto}#summaryCard{border-color:#bcdcd3}#bestFeatures{margin-bottom:0}
+.tablewrap{max-height:520px;border-radius:12px}table{min-width:740px}th{background:#edf3f6;font-size:12px;color:#526c7d;white-space:nowrap}th,td{padding:13px 15px}td{font-variant-numeric:tabular-nums;color:#415b6c}td:first-child{font-weight:600;white-space:nowrap}tbody tr:nth-child(even){background:#fafcfd}tbody tr:hover{background:#eff7f6}td.best{background:#e9f7ef}td[colspan]{text-align:center;padding:44px 20px;color:#718594}.chartbox{height:310px}.grid>.c6>.card{margin-bottom:22px}a{color:#087f83;text-underline-offset:3px}footer{max-width:1152px;margin:0 auto;padding:24px 0 36px;border-top:1px solid #dce6ec;display:flex;justify-content:space-between;gap:16px;font-size:12px;color:#738592}footer b{font-weight:600;color:#426072}
+@media(max-width:800px){.workflow{grid-template-columns:repeat(3,1fr)}.step:nth-child(3){border-right:0}.step:nth-child(-n+3){border-bottom:1px solid var(--line)}footer{margin:0 22px;flex-direction:column;gap:5px}}
+@media(max-width:600px){header{padding:22px 20px 34px}.brand{font-size:12px;gap:8px;margin-bottom:30px}.brand-icon{width:27px;height:27px}.sub{font-size:13px}main{padding:18px 14px 24px}.card{padding:20px 16px;border-radius:13px;margin-bottom:16px}h2{font-size:17px;gap:8px}.hero-tags{gap:6px}.hero-tags span{font-size:10px;padding:4px 7px}.badge{font-size:10px;padding:3px 6px}.chartbox{height:280px}.kpi{padding:16px}.kpi .value{margin-top:5px}.grid{gap:14px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
 </style>
 </head>
 <body>
 <header>
-  <div class="wrap">
-    <h1>DIC2 — Multiple Linear Regression Explorer</h1>
-    <p class="sub">Two Problems × CRISP-DM Workflow × 5 Feature Selection Techniques</p>
+  <div class="wrap"><div class="brand"><span class="brand-icon">↗</span> DIC2 <span class="brand-divider">/</span> 多元線性迴歸探索室</div><div class="eyebrow">資料科學實作 · 互動分析</div>
+    <h1>讓資料，說出預測的線索。</h1>
+    <p class="sub">從新創獲利到汽車油耗，透過五種特徵選擇方法，探索模型表現與變數之間的關係。</p><div class="hero-tags"><span>02 個預測題目</span><span>05 種特徵選擇方法</span><span>自訂 CSV 資料集</span></div>
   </div>
 </header>
 
 <main>
-<section class="card">
+<section class="card data-card">
+  <h2><span class="section-number">01</span> 選擇題目與資料</h2><p class="section-note">使用內建範例快速開始，也能匯入自己的資料。</p>
   <div class="grid">
     <div class="c4">
-      <label for="problem">Problem</label>
+      <label for="problem">選擇分析題目</label>
       <select id="problem">
-        <option value="startup">Problem 1 — 50 Startups Profit Prediction</option>
-        <option value="custom">Problem 2 — Auto MPG / Reusable Workflow</option>
+        <option value="startup">題目一｜新創公司利潤預測</option>
+        <option value="custom">題目二｜汽車油耗預測</option>
       </select>
     </div>
     <div class="c8">
-      <label>Dataset URL</label>
-      <input id="url" value="https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv">
+      <label>資料集網址</label>
+      <input id="url" aria-label="資料集網址" value="https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv">
     </div>
-    <div class="c4"><button id="loadExample">Load Selected Problem Example</button></div>
-    <div class="c4"><button id="loadUrl">Load Dataset from URL</button></div>
-    <div class="c4"><label>或上傳 CSV</label><input id="file" type="file" accept=".csv,text/csv"></div>
+    <div class="c4"><button id="loadExample">載入題目範例</button></div>
+    <div class="c4"><button id="loadUrl">從網址載入</button></div>
+    <div class="c4"><label>或上傳 CSV</label><input id="file" aria-label="上傳 CSV" type="file" accept=".csv,text/csv"></div>
     <div class="c4">
-      <label>Test size</label>
-      <select id="testSize"><option value="0.2">20%</option><option value="0.25">25%</option><option value="0.3">30%</option></select>
+      <label>測試資料比例</label>
+      <select id="testSize" aria-label="測試資料比例"><option value="0.2">20%</option><option value="0.25">25%</option><option value="0.3">30%</option></select>
     </div>
   </div>
-  <div id="status" class="status">Problem 1 已預填 50 Startups Dataset URL。按 Load Dataset from URL 開始。</div>
+  <div id="status" class="status" role="status" aria-live="polite">從「載入題目範例」開始，或使用自己的 CSV 資料集。</div>
 </section>
 
 <section class="card">
-  <h2>CRISP-DM / Skill Workflow</h2>
+  <h2>共用分析流程</h2>
   <div class="workflow">
-    <div class="step"><b>1</b>Business Understanding</div>
-    <div class="step"><b>2</b>Data Understanding</div>
-    <div class="step"><b>3</b>Data Preparation</div>
-    <div class="step"><b>4</b>Modeling</div>
-    <div class="step"><b>5</b>Evaluation</div>
-    <div class="step"><b>6</b>Deployment</div>
+    <div class="step"><b>1</b>理解問題</div>
+    <div class="step"><b>2</b>認識資料</div>
+    <div class="step"><b>3</b>資料準備</div>
+    <div class="step"><b>4</b>建立模型</div>
+    <div class="step"><b>5</b>評估表現</div>
+    <div class="step"><b>6</b>成果展示</div>
   </div>
-  <p id="problemDesc" class="hint">Problem 1：以 R&D Spend、Administration、Marketing Spend、State 預測 Profit。State 採 drop-first one-hot encoding，因此模型共有 5 個 encoded input features。</p>
+  <p id="problemDesc" class="hint">題目一：以研發支出、行政費用、行銷支出與所在州別預測利潤。州別採獨熱編碼並移除基準類別，共產生 5 個模型輸入特徵。</p>
 </section>
 
 <section class="card">
-  <h2>Dataset Setup</h2>
+  <h2><span class="section-number">02</span> 設定預測目標</h2><p class="section-note">選擇要預測的數值，以及模型可以參考的變數。</p>
   <div class="grid">
-    <div class="c4"><label>Target (y)</label><select id="target" disabled></select></div>
-    <div class="c4"><label>Random seed</label><input id="seed" type="number" value="42"></div>
-    <div class="c4"><label>CV folds</label><select id="folds"><option>5</option><option>4</option><option>3</option></select></div>
-    <div class="c12"><label>Predictor columns</label><div id="predictors" class="checks"><span class="small">Load dataset first.</span></div></div>
-    <div class="c4"><button id="run" disabled>Run Analysis</button></div>
+    <div class="c4"><label>預測目標（y）</label><select id="target" aria-label="預測目標" disabled></select></div>
+    <div class="c4"><label>隨機種子</label><input id="seed" aria-label="隨機種子" type="number" value="42"></div>
+    <div class="c4"><label>交叉驗證折數</label><select id="folds" aria-label="交叉驗證折數"><option>5</option><option>4</option><option>3</option></select></div>
+    <div class="c12"><label>輸入變數（可複選）</label><div id="predictors" class="checks"><span class="small">請先載入資料集，即可選擇變數。</span></div></div>
+    <div class="c4"><button id="run" disabled>開始分析</button></div>
     <div class="c8"><div id="datasetInfo" class="hint"></div></div>
   </div>
 </section>
 
 <section class="card">
-  <h2>Encoded Input Features</h2>
+  <h2>模型使用的特徵</h2>
   <div id="featurePills" class="pills"><span class="small">尚未建立特徵。</span></div>
 </section>
 
 <section id="summaryCard" class="card hidden">
-  <h2>Best Model Summary</h2>
+  <h2>最佳模型摘要 <span class="badge">依交叉驗證選出</span></h2>
   <div class="grid">
-    <div class="c4"><div class="kpi">Best Method<div id="bestMethod" class="value">—</div></div></div>
-    <div class="c4"><div class="kpi">Test RMSE (CV-selected)<div id="bestRmse" class="value">—</div></div></div>
-    <div class="c4"><div class="kpi">R-squared<div id="bestR2" class="value">—</div></div></div>
+    <div class="c4"><div class="kpi">推薦方法<div id="bestMethod" class="value">—</div></div></div>
+    <div class="c4"><div class="kpi">測試誤差 RMSE · 越低越好<div id="bestRmse" class="value">—</div></div></div>
+    <div class="c4"><div class="kpi">模型解釋力 R² · 越高越好<div id="bestR2" class="value">—</div></div></div>
   </div>
   <p id="bestFeatures" class="hint"></p>
 </section>
 
 <section class="card">
-  <h2>Feature Selection Results</h2>
+  <h2><span class="section-number">03</span> 五種方法，一次比較</h2><p class="section-note">同時比較不同特徵數的表現；綠色數值標示交叉驗證選出的模型。小螢幕可左右滑動表格。</p>
   <div class="tablewrap">
     <table>
-      <thead><tr><th>Method</th><th># Features</th><th>Selected Features</th><th>CV RMSE</th><th>Test RMSE</th><th>R-squared</th></tr></thead>
-      <tbody id="tbody"><tr><td colspan="6" class="small">Run analysis to see results.</td></tr></tbody>
+      <thead><tr><th>選擇方法</th><th>特徵數</th><th>選入特徵</th><th>驗證 RMSE</th><th>測試 RMSE</th><th>解釋力 R²</th></tr></thead>
+      <tbody id="tbody"><tr><td colspan="6" class="small">尚未產生結果。載入資料並點選「開始分析」，即可比較模型表現。</td></tr></tbody>
     </table>
   </div>
 </section>
 
 <section class="grid">
-  <div class="c6"><div class="card"><h2>RMSE by Number of Features</h2><div class="chartbox"><canvas id="rmseChart"></canvas></div></div></div>
-  <div class="c6"><div class="card"><h2>R-squared by Number of Features</h2><div class="chartbox"><canvas id="r2Chart"></canvas></div></div></div>
+  <div class="c6"><div class="card"><h2>特徵數與預測誤差</h2><div class="chartbox"><canvas id="rmseChart"></canvas></div></div></div>
+  <div class="c6"><div class="card"><h2>特徵數與模型解釋力</h2><div class="chartbox"><canvas id="r2Chart"></canvas></div></div></div>
 </section>
 
 <section class="card">
-  <h2>Five Feature Selection Techniques</h2>
+  <h2>關於這次分析</h2>
   <div class="pills">
-    <span class="pill">Best Subset</span><span class="pill">Forward Selection</span>
-    <span class="pill">Elastic Net</span><span class="pill">RFE</span><span class="pill">Lasso (L1)</span>
+    <span class="pill">最佳子集</span><span class="pill">前向選擇</span>
+    <span class="pill">彈性網路 Elastic Net</span><span class="pill">遞迴特徵消除 RFE</span><span class="pill">Lasso (L1)</span>
   </div>
-  <p class="hint">Selection 使用 training data；test set 僅用於最後 RMSE / R² 評估。最佳模型依 training CV RMSE 選擇。Lasso / Elastic Net 以正則化係數排名，再以 OLS 重擬各 k 個特徵；CV 分數是選模用途，並非巢狀 CV 的無偏估計。Problem 2 直接套用同一個 <a href="workflows/regression.md">regression workflow</a>。</p>
+  <p class="hint">模型依訓練資料的交叉驗證誤差選出，測試資料用於最後評估。Lasso 與彈性網路先依正則化係數排名，再以最小平方法重新擬合。驗證分數供選模使用，並非巢狀交叉驗證的無偏估計。兩題共用相同的 <a href="workflows/regression.md">迴歸分析流程</a>。</p>
 </section>
-</main>
+</main><footer><b>DIC2 · 多元線性迴歸探索室</b><span>資料在瀏覽器中分析 · CRISP-DM 共用工作流程</span></footer>
 
 <script>
 let rawRows=[], headers=[], rmseChart=null, r2Chart=null;
 const $=id=>document.getElementById(id);
+
+const methodLabel=m=>({'Best Subset':'最佳子集','Forward Selection':'前向選擇','RFE':'遞迴特徵消除','Lasso':'Lasso','Elastic Net':'彈性網路（Elastic Net）'}[m]||m);
+const fieldLabel=n=>({'Profit':'利潤（Profit）','R&D Spend':'研發支出','Administration':'行政費用','Marketing Spend':'行銷支出','State':'州別','State_Florida':'州別：佛羅里達','State_New York':'州別：紐約','mpg':'每加侖里程（mpg）','displacement':'排氣量','horsepower':'馬力','weight':'車重','cylinders':'汽缸數','acceleration':'加速時間','model_year':'出廠年份','origin':'產地','name':'車款名稱'}[n]||n);
 const STARTUP_URL='https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv';
 
 $('problem').addEventListener('change',()=>{
   resetDataset();
   if($('problem').value==='startup'){
     $('url').value=STARTUP_URL;
-    $('problemDesc').textContent='Problem 1：以 R&D Spend、Administration、Marketing Spend、State 預測 Profit。State 採 drop-first one-hot encoding，因此模型共有 5 個 encoded input features。';
+    $('problemDesc').textContent='題目一：以研發支出、行政費用、行銷支出與所在州別預測利潤。州別採獨熱編碼並移除基準類別，共產生 5 個模型輸入特徵。';
   }else{
     $('url').value='data/mpg.csv';
-    $('problemDesc').textContent='Problem 2：汽車油耗預測（Auto MPG）。以 displacement、horsepower、weight 預測 mpg，直接套用 workflows/regression.md 的共用流程。也可改用任意公開 CSV 或本機檔案。';
+    $('problemDesc').textContent='題目二：以排氣量、馬力與車重預測每加侖行駛里程（mpg），直接套用相同的迴歸分析流程。也可改用自己的 CSV 資料集。';
   }
 });
 $('loadExample').addEventListener('click',async()=>{
@@ -161,16 +180,16 @@ $('loadExample').addEventListener('click',async()=>{
 });
 function resetResults(){
   $('summaryCard').classList.add('hidden');
-  $('tbody').innerHTML='<tr><td colspan="6">Run analysis to see results.</td></tr>';
+  $('tbody').innerHTML='<tr><td colspan="6">尚未產生結果。載入資料並點選「開始分析」，即可比較模型表現。</td></tr>';
   $('featurePills').textContent='尚未建立特徵。';
   if(rmseChart)rmseChart.destroy(); if(r2Chart)r2Chart.destroy(); rmseChart=r2Chart=null;
 }
-function resetDataset(){resetResults();rawRows=[];headers=[];$('target').innerHTML='';$('target').disabled=true;$('run').disabled=true;$('predictors').textContent='Load dataset first.';$('datasetInfo').textContent='';setStatus('請載入所選題目範例，或輸入 CSV。');}
+function resetDataset(){resetResults();rawRows=[];headers=[];$('target').innerHTML='';$('target').disabled=true;$('run').disabled=true;$('predictors').textContent='請先載入資料集，即可選擇變數。';$('datasetInfo').textContent='';setStatus('請載入所選題目範例，或輸入 CSV。');}
 $('loadUrl').addEventListener('click',async()=>{
-  const url=$('url').value.trim(); if(!url)return setStatus('請輸入 Dataset URL。',false);
-  resetDataset();setStatus('Loading dataset…');
+  const url=$('url').value.trim(); if(!url)return setStatus('請輸入 資料集網址。',false);
+  resetDataset();setStatus('正在載入資料…');
   try{const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);loadCsv(await r.text())}
-  catch(e){setStatus('Dataset 載入失敗：'+e.message+'\n若來源阻擋 CORS，請改用 CSV 上傳。',false)}
+  catch(e){setStatus('資料集載入失敗：'+e.message+'\n若來源阻擋 CORS，請改用 CSV 上傳。',false)}
 });
 $('file').addEventListener('change',async e=>{const f=e.target.files[0];if(f)loadCsv(await f.text())});
 
@@ -179,16 +198,16 @@ function loadCsv(text){
   const p=Papa.parse(text,{header:true,dynamicTyping:true,skipEmptyLines:'greedy',transformHeader:h=>h.trim()});
   if(p.errors.length || !p.meta.fields || p.meta.fields.length<2 || new Set(p.meta.fields).size!==p.meta.fields.length) return setStatus('CSV 格式錯誤：請使用至少兩欄、不重複的欄名及一致的列寬。',false);
   rawRows=p.data; headers=p.meta.fields||Object.keys(rawRows[0]||{});
-  if(!rawRows.length)return setStatus('Dataset is empty.',false);
-  $('target').innerHTML=headers.map(h=>`<option value="${esc(h)}">${esc(h)}</option>`).join('');
+  if(!rawRows.length)return setStatus('資料集沒有可用資料。',false);
+  $('target').innerHTML=headers.map(h=>`<option value="${esc(h)}">${esc(fieldLabel(h))}</option>`).join('');
   let t=headers.includes('Profit')?'Profit':headers.includes('mpg')?'mpg':headers[headers.length-1];
   $('target').value=t;$('target').disabled=false;renderPredictors(t);$('target').onchange=()=>renderPredictors($('target').value);
-  $('run').disabled=false;$('datasetInfo').textContent=`Rows: ${rawRows.length} | Columns: ${headers.length}`;
-  setStatus(`Dataset loaded: ${rawRows.length} rows × ${headers.length} columns.\n請確認 Target 與 predictors，再執行分析。`,true);
+  $('run').disabled=false;$('datasetInfo').textContent=`${rawRows.length} 筆資料 · ${headers.length} 個欄位`;
+  setStatus(`資料載入成功：${rawRows.length} 筆資料、${headers.length} 個欄位。\n請確認預測目標與輸入變數，再開始分析。`,true);
 }
 function renderPredictors(target){
   resetResults();
-  $('predictors').innerHTML=headers.filter(h=>h!==target).map(h=>`<label class="check"><input type="checkbox" value="${esc(h)}" checked>${esc(h)}</label>`).join('');
+  $('predictors').innerHTML=headers.filter(h=>h!==target).map(h=>`<label class="check"><input type="checkbox" value="${esc(h)}" checked>${esc(fieldLabel(h))}</label>`).join('');
 }
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function setStatus(msg,ok=null){$('status').textContent=msg;$('status').className='status'+(ok===true?' ok':ok===false?' bad':'')}
@@ -198,20 +217,20 @@ $('run').addEventListener('click',()=>{try{runAnalysis()}catch(e){console.error(
 function runAnalysis(){
   const target=$('target').value;
   const predictors=[...document.querySelectorAll('#predictors input:checked')].map(x=>x.value);
-  if(!predictors.length)throw new Error('至少選擇一個 predictor。');
+  if(!predictors.length)throw new Error('至少選擇一個輸入變數。');
   resetResults();
   const missing=v=>v==null||String(v).trim()==='';
   const clean=rawRows.filter(r=>!missing(r[target])&&Number.isFinite(Number(r[target]))&&predictors.every(c=>!missing(r[c])));
-  if(clean.length<10)throw new Error('可用 numeric target 資料不足 10 筆。');
+  if(clean.length<10)throw new Error('可用的數值目標資料不足 10 筆。');
   const seed=Number($('seed').value),testSize=Number($('testSize').value),folds=Number($('folds').value)||5;
-  if(!Number.isInteger(seed))throw new Error('Random seed 必須為整數。');
+  if(!Number.isInteger(seed))throw new Error('隨機種子 必須為整數。');
   const ids=shuffle([...Array(clean.length).keys()],seed),nTest=Math.max(2,Math.round(clean.length*testSize)),te=ids.slice(0,nTest),tr=ids.slice(nTest);
   const trainRows=tr.map(i=>clean[i]),testRows=te.map(i=>clean[i]);
   const enc=encode(trainRows,predictors,target),testEnc=encode(testRows,predictors,target,enc.specs);
   const names=enc.names,Xtr=enc.X,ytr=enc.y,Xte=testEnc.X,yte=testEnc.y;
-  if(!names.length)throw new Error('沒有可用特徵；請選擇有變化的 predictor。');
-  if(names.length>10)throw new Error('編碼後超過 10 個特徵，請減少 predictor（尤其是 ID 或高基數類別欄位）再執行。不會自動刪除特徵。');
-  $('featurePills').innerHTML=names.map(n=>`<span class="pill">${esc(n)}</span>`).join('')+`<span class="pill"><b>Total: ${names.length}</b></span>`;
+  if(!names.length)throw new Error('沒有可用特徵；請選擇有變化的輸入變數。');
+  if(names.length>10)throw new Error('編碼後超過 10 個特徵，請減少輸入變數（尤其是 ID 或高基數類別欄位）再執行。不會自動刪除特徵。');
+  $('featurePills').innerHTML=names.map(n=>`<span class="pill">${esc(fieldLabel(n))}</span>`).join('')+`<span class="pill"><b>共 ${names.length} 個特徵</b></span>`;
   const p=names.length,results=[];
 
   for(let k=1;k<=p;k++){let best={cv:Infinity,idxs:null};for(const c of combinations([...Array(p).keys()],k)){const v=cvRmse(Xtr,ytr,c,folds,seed);if(v<best.cv)best={cv:v,idxs:c}}results.push(makeResult('Best Subset',k,best.idxs,best.cv,Xtr,ytr,Xte,yte,names))}
@@ -225,7 +244,7 @@ function runAnalysis(){
     for(let k=1;k<=p;k++){const c=rank.slice(0,k);results.push(makeResult(method,k,c,cvRmse(Xtr,ytr,c,folds,seed),Xtr,ytr,Xte,yte,names))}
   }
   renderResults(results);
-  setStatus(`分析完成：${clean.length} rows（排除 ${rawRows.length-clean.length} 筆缺失或無效資料）；Training ${Xtr.length}；Test ${Xte.length}；Encoded input features ${p}。`,true);
+  setStatus(`分析完成：${clean.length} 筆資料（排除 ${rawRows.length-clean.length} 筆缺失或無效資料）；訓練 ${Xtr.length} 筆；測試 ${Xte.length} 筆；編碼特徵 ${p} 個。`,true);
 }
 function encode(rows,predictors,target,fittedSpecs=null){
   const specs=fittedSpecs||[];
@@ -253,14 +272,14 @@ function makeResult(method,k,idxs,cv,Xtr,ytr,Xte,yte,names){
 }
 function renderResults(results){
   const best=results.reduce((a,b)=>b.cv<a.cv?b:a,results[0]);
-  $('summaryCard').classList.remove('hidden');$('bestMethod').textContent=best.method;$('bestRmse').textContent=best.rmse.toFixed(2);$('bestR2').textContent=best.r2.toFixed(4);$('bestFeatures').textContent='Selected features: '+best.features.join(', ');
-  $('tbody').innerHTML=results.map(r=>`<tr><td>${r.method}</td><td>${r.k}</td><td>${esc(r.features.join(', '))}</td><td>${r.cv.toFixed(2)}</td><td class="${r===best?'best':''}">${r.rmse.toFixed(2)}</td><td>${r.r2.toFixed(4)}</td></tr>`).join('');
+  $('summaryCard').classList.remove('hidden');$('bestMethod').textContent=methodLabel(best.method);$('bestRmse').textContent=best.rmse.toFixed(2);$('bestR2').textContent=best.r2.toFixed(4);$('bestFeatures').textContent='選入特徵：'+best.features.map(fieldLabel).join('、');
+  $('tbody').innerHTML=results.map(r=>`<tr><td>${methodLabel(r.method)}</td><td>${r.k}</td><td>${esc(r.features.map(fieldLabel).join('、'))}</td><td>${r.cv.toFixed(2)}</td><td class="${r===best?'best':''}">${r.rmse.toFixed(2)}</td><td>${r.r2.toFixed(4)}</td></tr>`).join('');
   const methods=[...new Set(results.map(r=>r.method))],labels=[...new Set(results.map(r=>r.k))].sort((a,b)=>a-b);
   if(rmseChart)rmseChart.destroy();if(r2Chart)r2Chart.destroy();
-  rmseChart=new Chart($('rmseChart'),{type:'line',data:{labels,datasets:methods.map(m=>({label:m,data:labels.map(k=>results.find(r=>r.method===m&&r.k===k).rmse),tension:.2,pointRadius:4}))},options:chartOpts('RMSE')});
-  r2Chart=new Chart($('r2Chart'),{type:'line',data:{labels,datasets:methods.map(m=>({label:m,data:labels.map(k=>results.find(r=>r.method===m&&r.k===k).r2),tension:.2,pointRadius:4}))},options:chartOpts('R-squared')});
+  rmseChart=new Chart($('rmseChart'),{type:'line',data:{labels,datasets:methods.map(m=>({label:methodLabel(m),data:labels.map(k=>results.find(r=>r.method===m&&r.k===k).rmse),tension:.2,pointRadius:4}))},options:chartOpts('RMSE')});
+  r2Chart=new Chart($('r2Chart'),{type:'line',data:{labels,datasets:methods.map(m=>({label:methodLabel(m),data:labels.map(k=>results.find(r=>r.method===m&&r.k===k).r2),tension:.2,pointRadius:4}))},options:chartOpts('解釋力 R²')});
 }
-function chartOpts(y){return{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'}},scales:{x:{title:{display:true,text:'Number of Features'}},y:{title:{display:true,text:y}}}}}
+function chartOpts(y){return{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'}},scales:{x:{title:{display:true,text:'特徵數量'}},y:{title:{display:true,text:y}}}}}
 function shuffle(a,seed){const rnd=mulberry32(seed);a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
 function combinations(arr,k){const out=[];function rec(s,c){if(c.length===k){out.push(c.slice());return}for(let i=s;i<arr.length;i++){c.push(arr[i]);rec(i+1,c);c.pop()}}rec(0,[]);return out}
