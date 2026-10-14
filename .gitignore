@@ -1,0 +1,7 @@
+assignment.png
+reference.html
+update_project.py
+tests/*.png
+__pycache__/
+_site/
+publish_pages.py
